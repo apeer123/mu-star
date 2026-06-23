@@ -12,7 +12,7 @@ rule extract_catchment_flows:
         extracted = directory("{data}/processed/hydrology/catchment_flows")
     shell:
         """
-        python workflow/scripts/extract_catchment_flows.py \
+        python workflow/scripts/Phase_B_Tabular_Extraction/extract_catchment_flows.py \
             --indir "{input.pdfs}" \
             --outdir "{output.extracted}"
         """
@@ -29,7 +29,7 @@ rule extract_grse_flow_tables:
         extracted = directory("{data}/processed/hydrology/grse_flow_tables")
     shell:
         """
-        python workflow/scripts/extract_grse_flow_tables.py \
+        python workflow/scripts/Phase_B_Tabular_Extraction/extract_grse_flow_tables.py \
             --images-dir "{input.images_dir}" \
             --pdf-dir "{input.pdf_dir}" \
             --output-dir "{output.extracted}"
@@ -45,7 +45,7 @@ rule extract_aquastat_dams:
         extracted = directory("{data}/processed/hydrology/aquastat_dams")
     shell:
         """
-        python workflow/scripts/extract_aquastat_dams.py \
+        python workflow/scripts/Phase_B_Tabular_Extraction/extract_aquastat_dams.py \
             --xlsx "{input.xlsx}" \
             --out-dir "{output.extracted}"
         """
@@ -60,7 +60,7 @@ rule extract_mauritius_water_stats:
         extracted = directory("{data}/processed/hydrology/mauritius_statistics_extracted")
     shell:
         """
-        python workflow/scripts/extract_mauritius_water_stats.py \
+        python workflow/scripts/Phase_B_Tabular_Extraction/extract_mauritius_water_stats.py \
             --stats-dir "{input.stats_dir}" \
             --out-dir "{output.extracted}"
         """
@@ -75,7 +75,7 @@ rule geocode_plants:
         geocoded = directory("{data}/processed/infrastructure/geocoded_plants")
     shell:
         """
-        python workflow/scripts/geocode_plants.py \
+        python workflow/scripts/Phase_D_Infrastructure_Matching/geocode_plants.py \
             --input_dir "{input.coords_dir}" \
             --output_dir "{output.geocoded}"
         """
