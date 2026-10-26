@@ -133,7 +133,7 @@ G\equiv \{g_{ij}\} = \begin{cases}
 \end{cases}
 $$
 
-The successive application of these aggregation operators to an output tensor ($n \_ locations\times n \_ sectors$) provides a tensor containing modelled outputs aggregated to the same spatial and sectoral resolution as the constrain. At this level of resolution, the likelihood function can be applied and comparison can be made with the available data.
+The successive application of these aggregation operators to an output tensor ($n_{locations}\times n_{sectors}$) provides a tensor containing modelled outputs aggregated to the same spatial and sectoral resolution as the constrain. At this level of resolution, the likelihood function can be applied and comparison can be made with the available data.
 
 <!--
 ## Spatial modelling
