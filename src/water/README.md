@@ -6,12 +6,12 @@ They are namely:
 2. costs.csv
 3. basin_parameters.csv
 
-For catchment_data_monthly_m3.csv , this is about 
-date	YYYY-MM-01	Monthly timestamp across 46 years (552 monthly steps) where same has been populated with dummy data
-catchment	Text (A to Z)	Catchment identifier (25 national basins, excluding O).
-inflow Supply: Total natural runoff / river inflow volume entering the basin.
-demand_municipal	Demand (Priority 1): Domestic potable drinking water needed by residents.
-demand_industrial	Demand (Priority 2): Water needed by businesses, factories, and commercial units.
+For catchment_data_monthly_m3.csv , doing data entry , where fields such as 
+date	YYYY-MM-01	Monthly timestamp across 46 years (552 monthly steps) where same has been populated with dummy data ,
+catchment	Text (A to Z)	Catchment identifier (25 national basins, excluding O),
+inflow Supply: Total natural runoff / river inflow volume entering the basin ,
+demand_municipal	Demand (Priority 1): Domestic potable drinking water needed by residents ,
+demand_industrial	Demand (Priority 2): Water needed by businesses, factories, and commercial units ,
 demand_irrigation	Demand (Priority 3): Agricultural water needed for irrigation (sugarcane, crops).
 
 Then we have cost csv which is about The policy and priority ranking managing water allocation.
