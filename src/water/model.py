@@ -1,5 +1,4 @@
 import csv
-import json
 import os
 import sys
 
@@ -46,40 +45,6 @@ def load_basin_parameters(params_csv_path):
                 except ValueError:
                     pass
     return params
-
-
-def sync_pywr_json(base_dir, costs, basin_params):
-    json_path = os.path.join(base_dir, "Pywr_downscaled_model.json")
-    if not os.path.exists(json_path):
-        return
-    with open(json_path, mode="r", encoding="utf-8") as f:
-        schema = json.load(f)
-    for node in schema.get("nodes", []):
-        name = node.get("name", "")
-        if "_" in name:
-            comp, basin = name.rsplit("_", 1)
-            basin = basin.upper()
-            if comp == "reservoir":
-                if basin in basin_params:
-                    node["max_volume"] = basin_params[basin]["s_max"]
-                    node["min_volume"] = basin_params[basin]["s_min"]
-                    node["initial_volume"] = basin_params[basin]["s_init"]
-                if "reservoir" in costs:
-                    node["cost"] = costs["reservoir"]
-            elif comp == "hydropower":
-                if basin in basin_params:
-                    node["max_flow"] = basin_params[basin]["hydro_max"]
-                if "hydropower" in costs:
-                    node["cost"] = costs["hydropower"]
-            elif comp == "environmental_mrf":
-                if basin in basin_params:
-                    node["mrf"] = basin_params[basin]["mrf_target"]
-                if "environmental_mrf" in costs:
-                    node["mrf_cost"] = costs["environmental_mrf"]
-            elif comp in costs:
-                node["cost"] = costs[comp]
-    with open(json_path, mode="w", encoding="utf-8") as f:
-        json.dump(schema, f, indent=2)
 
 
 def discover_available_basins(data_dir):
@@ -252,13 +217,11 @@ def solve_all_basins():
 
     costs = load_costs(costs_csv)
     basin_params = load_basin_parameters(params_csv)
-    sync_pywr_json(base_dir, costs, basin_params)
     basins = discover_available_basins(data_dir)
 
-    print("\n" + "=" * 80)
-    print(f"NATIONAL MULTI-CATCHMENT WATER BALANCE SIMULATION ({len(basins)} BASINS)")
-    print("=" * 80)
-
+    print("\n" )
+    print(f"CATCHMENTs WATER BALANCE SIMULATION ({len(basins)} BASINS)")
+    print("\n" )
     summary_list = []
     for b in basins:
         res = solve_downscaled_simulation(basin=b, data_dir=data_dir, costs=costs, basin_params=basin_params)
@@ -273,49 +236,40 @@ def solve_all_basins():
     os.makedirs(out_dir, exist_ok=True)
     summary_csv = os.path.join(out_dir, "all_basins_water_balance_summary.csv")
 
-    try:
-        with open(summary_csv, mode="w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
+    with open(summary_csv, mode="w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "basin",
+            "inflow_Mm3_yr",
+            "demands_delivered_Mm3_yr",
+            "municipal_Mm3_yr",
+            "industrial_Mm3_yr",
+            "irrigation_Mm3_yr",
+            "sea_discharge_Mm3_yr",
+            "hydropower_Mm3_yr",
+            "max_residual_m3",
+            "municipal_reliability_pct",
+            "industrial_reliability_pct",
+            "irrigation_reliability_pct"
+        ])
+        for r in summary_list:
             writer.writerow([
-                "basin",
-                "inflow_Mm3_yr",
-                "demands_delivered_Mm3_yr",
-                "municipal_Mm3_yr",
-                "industrial_Mm3_yr",
-                "irrigation_Mm3_yr",
-                "sea_discharge_Mm3_yr",
-                "hydropower_Mm3_yr",
-                "max_residual_m3",
-                "municipal_reliability_pct",
-                "industrial_reliability_pct",
-                "irrigation_reliability_pct"
+                r["basin"],
+                r["inflow_Mm3_yr"],
+                r["demands_Mm3_yr"],
+                r["municipal_Mm3_yr"],
+                r["industrial_Mm3_yr"],
+                r["irrigation_Mm3_yr"],
+                r["sea_Mm3_yr"],
+                r["hydro_Mm3_yr"],
+                f"{r['max_err_m3']:.6f}",
+                r["rel_muni_pct"],
+                r["rel_indu_pct"],
+                r["rel_irri_pct"]
             ])
-            for r in summary_list:
-                writer.writerow([
-                    r["basin"],
-                    r["inflow_Mm3_yr"],
-                    r["demands_Mm3_yr"],
-                    r["municipal_Mm3_yr"],
-                    r["industrial_Mm3_yr"],
-                    r["irrigation_Mm3_yr"],
-                    r["sea_Mm3_yr"],
-                    r["hydro_Mm3_yr"],
-                    f"{r['max_err_m3']:.6f}",
-                    r["rel_muni_pct"],
-                    r["rel_indu_pct"],
-                    r["rel_irri_pct"]
-                ])
-        print("=" * 80)
-        print(f"Successfully simulated {len(basins)} catchments with 100% exact mass balance closure.")
-        print(f"Pywr JSON model synchronized with latest CSV parameters.")
-        print(f"National summary saved to:\n  {summary_csv}")
-        print("=" * 80)
-    except PermissionError:
-        print("=" * 80)
-        print(f"Successfully simulated {len(basins)} catchments with 100% exact mass balance closure.")
-        print(f"Pywr JSON model synchronized with latest CSV parameters.")
-        print(f"Note: Please close '{os.path.basename(summary_csv)}' in Excel to allow file update.")
-        print("=" * 80)
+
+    print(f" {len(basins)} catchments mass balance closure.")
+    print(f"summary saved to:\n  {summary_csv}")
 
 
 if __name__ == "__main__":
