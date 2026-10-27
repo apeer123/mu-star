@@ -1,7 +1,7 @@
 This readme explains how we are going to use this pywr solution:
-The inputs to be made by the user is found in data folder.
+The inputs to be made by the user is should be in a folder called "data"
 
-They are namely:
+They should be namely:
 1. catchment_data_monthly_m3.csv
 2. costs.csv
 3. basin_parameters.csv
@@ -14,8 +14,7 @@ demand_municipal	Demand (Priority 1): Domestic potable drinking water needed by 
 demand_industrial	Demand (Priority 2): Water needed by businesses, factories, and commercial units ,
 demand_irrigation	Demand (Priority 3): Agricultural water needed for irrigation (sugarcane, crops).
 
-Then we have cost csv which is about The policy and priority ranking managing water allocation.
-
+Then we have cost csv which is about the policy and priority ranking managing water allocation.
 
 Lastly, there is basin_parameters.csv, where for this one :
 
