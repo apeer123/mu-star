@@ -1,30 +1,34 @@
-This readme explains how we are going to use this pywr solution:
-The inputs to be made by the user is should be in a folder called "data"
+# Water Allocation Model (Pywr)
 
-They should be namely:
-1. catchment_data_monthly_m3.csv
-2. costs.csv
-3. basin_parameters.csv
+This module implements the catchment water allocation model using official Pywr Cookbook components (`pywr.domains.river`, `read_dataframe`, and `Model` with the GLPK solver).
 
-For catchment_data_monthly_m3.csv , doing data entry , where fields such as 
-date	YYYY-MM-01	Monthly timestamp across 46 years (552 monthly steps) where same has been populated with dummy data ,
-catchment	Text (A to Z)	Catchment identifier (25 national basins, excluding O),
-inflow Supply: Total natural runoff / river inflow volume entering the basin ,
-demand_municipal	Demand (Priority 1): Domestic potable drinking water needed by residents ,
-demand_industrial	Demand (Priority 2): Water needed by businesses, factories, and commercial units ,
-demand_irrigation	Demand (Priority 3): Agricultural water needed for irrigation (sugarcane, crops).
+## Requirements
+- Python 3.12+
+- `pywr` and `pandas`
 
-Then we have cost csv which is about the policy and priority ranking managing water allocation.
+## Input Files (`src/water/data/`)
+Place the following CSV files in `src/water/data/` (ignored by Git):
 
-Lastly, there is basin_parameters.csv, where for this one :
+1. `costs.csv` — Priority costs driving water allocation (more negative = higher priority).
+2. `basin_parameters.csv` — Per-basin physical settings:
+   - `basin`: Catchment ID (A to Z, omitting O).
+   - `reservoir_capacity_m3`: Maximum dam storage (`0.0` for run-of-river basins).
+   - `dead_storage_m3`: Minimum unusable storage (`0.0` if no reservoir).
+   - `hydropower_max_m3`: Maximum monthly turbine flow (`0.0` if no hydropower).
+   - `mrf_target_m3`: Minimum Residual Flow ecological target (`0.0` if none).
+   - `initial_storage_m3`: Starting storage volume at month 1 (`0.0` if no reservoir).
+3. Monthly time-series files (wide format: `date` column in `YYYY-MM-DD` format, one column per basin):
+   - `inflow_monthly_m3.csv`
+   - `demand_municipal_monthly_m3.csv`
+   - `demand_industrial_monthly_m3.csv`
+   - `demand_irrigation_monthly_m3.csv`
+4. `interbasin_transfers.csv` (optional) — Inter-basin transfer links (`from_basin`, `to_basin`, `link_name`, `max_capacity_m3`).
 
-basin	Catchment is from (A through Z, omitting O) it	identifies the catchment.
-reservoir_capacity_m3	is the Maximum dam storage capacity.	If NO reservoir exists: Enter 0.0. The catchment operates as a natural run-of-river basin.
-dead_storage_m3	which is the	Minimum unusable water level at dam bottom.	If NO reservoir exists: Enter 0.0.
-hydropower_max_m3	is about	Maximum turbine hydraulic throughput.	If NO hydropower plant exists: Enter 0.0. No power generation flow is recorded.
-mrf_target_m3	is the	Minimum Residual Flow target volume.	If NO MRF target is required: Enter 0.0.
-initial_storage_m3 is the Starting water volume at month 1.	If NO reservoir exists: Enter 0.0.
+## Running the Model
+From `src/water/`:
 
+```bash
+python model.py
+```
 
-
-To execute the simulation, python model.py should be executed and output will be generated in its folder. Additionally, the json file would also be updated accordingly.
+Running `model.py` generates the calendar lookup (`data/calendar_days_in_month.csv`), builds the Pywr JSON network file (`Pywr_simplified_model.json`, with no data stored inside JSON), solves all basins and transfers simultaneously, and writes the summary CSV to `src/water/outputs/simplified_water_balance_summary.csv`. Generated JSON, data, and output files are ignored by Git.

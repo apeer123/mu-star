@@ -1,3 +1,3 @@
-from .model import solve_all_basins, solve_downscaled_simulation
+from .model import build_simplified_model, run_simplified
 
-__all__ = ["solve_all_basins", "solve_downscaled_simulation"]
+__all__ = ["build_simplified_model", "run_simplified"]
